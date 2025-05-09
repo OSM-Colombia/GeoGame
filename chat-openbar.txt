@@ -640,3 +640,478 @@ const handleOSMError = (error: any): never => {
 ```
 
 ¿Te gustaría que profundicemos en algún aspecto específico de la integración con OSM o que te muestre ejemplos más detallados de alguna funcionalidad en particular?
+
+
+
+Voy a ayudarte a crear el proyecto GeoGame paso a paso. Primero, vamos a establecer la estructura del proyecto y luego iremos implementando cada componente.
+
+Primero, veamos la estructura de directorios que vamos a crear:
+
+```
+GeoGame/
+├── client/                 # Frontend React
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       ├── services/
+│       ├── store/
+│       ├── types/
+│       └── utils/
+├── server/                 # Backend Node.js
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   └── utils/
+│   └── tests/
+└── shared/                 # Código compartido
+    └── types/
+```
+
+Empecemos con la configuración inicial del proyecto:
+
+1. Primero, vamos a crear el proyecto:
+
+```bash
+mkdir GeoGame
+cd GeoGame
+```
+
+2. Inicializar el backend:
+
+```bash
+mkdir server
+cd server
+npm init -y
+```
+
+3. Instalar dependencias del backend:
+
+```bash
+npm install express typescript ts-node @types/node @types/express dotenv cors @types/cors mongoose @types/mongoose jsonwebtoken @types/jsonwebtoken axios @types/axios
+```
+
+4. Inicializar el frontend:
+
+```bash
+cd ..
+npx create-react-app client --template typescript
+cd client
+```
+
+5. Instalar dependencias del frontend:
+
+```bash
+npm install @reduxjs/toolkit react-redux leaflet @types/leaflet react-leaflet @types/react-leaflet axios i18next react-i18next tailwindcss @headlessui/react @heroicons/react
+```
+
+Empecemos con el código. Primero, el backend:
+
+1. **Configuración de TypeScript (server/tsconfig.json)**:
+
+```json
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
+```
+
+2. **Configuración del servidor (server/src/index.ts)**:
+
+```typescript
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import gameRoutes from './routes/game.routes';
+import authRoutes from './routes/auth.routes';
+
+dotenv.config();
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.use('/api/game', gameRoutes);
+app.use('/api/auth', authRoutes);
+
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/geogame')
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+```
+
+3. **Modelos (server/src/models/Game.ts)**:
+
+```typescript
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IGame extends Document {
+  categoryId: string;
+  userId: string;
+  score: number;
+  time: number;
+  answers: Array<{
+    questionId: string;
+    answer: any;
+    score: number;
+    time: number;
+  }>;
+  createdAt: Date;
+}
+
+const GameSchema: Schema = new Schema({
+  categoryId: { type: String, required: true },
+  userId: { type: String, required: true },
+  score: { type: Number, required: true },
+  time: { type: Number, required: true },
+  answers: [{
+    questionId: { type: String, required: true },
+    answer: { type: Schema.Types.Mixed, required: true },
+    score: { type: Number, required: true },
+    time: { type: Number, required: true }
+  }],
+  createdAt: { type: Date, default: Date.now }
+});
+
+export default mongoose.model<IGame>('Game', GameSchema);
+```
+
+4. **Controladores (server/src/controllers/game.controller.ts)**:
+
+```typescript
+import { Request, Response } from 'express';
+import Game from '../models/Game';
+import { OverpassService } from '../services/overpass.service';
+
+export class GameController {
+  private overpassService: OverpassService;
+
+  constructor() {
+    this.overpassService = new OverpassService();
+  }
+
+  async startGame = async (req: Request, res: Response) => {
+    try {
+      const { categoryId } = req.body;
+      const questions = await this.overpassService.getQuestions(categoryId);
+      res.json({ questions });
+    } catch (error) {
+      res.status(500).json({ error: 'Error starting game' });
+    }
+  };
+
+  async submitAnswer = async (req: Request, res: Response) => {
+    try {
+      const { gameId, questionId, answer, time } = req.body;
+      const score = await this.calculateScore(questionId, answer, time);
+      res.json({ score });
+    } catch (error) {
+      res.status(500).json({ error: 'Error submitting answer' });
+    }
+  };
+
+  async endGame = async (req: Request, res: Response) => {
+    try {
+      const { gameId, totalScore, totalTime, answers } = req.body;
+      const game = await Game.findByIdAndUpdate(
+        gameId,
+        {
+          score: totalScore,
+          time: totalTime,
+          answers
+        },
+        { new: true }
+      );
+      res.json({ game });
+    } catch (error) {
+      res.status(500).json({ error: 'Error ending game' });
+    }
+  };
+
+  private async calculateScore(questionId: string, answer: any, time: number): Promise<number> {
+    // Implementar lógica de cálculo de puntuación
+    return 0;
+  }
+}
+```
+
+5. **Servicios (server/src/services/overpass.service.ts)**:
+
+```typescript
+import axios from 'axios';
+
+export class OverpassService {
+  private endpoint = 'https://overpass-api.de/api/interpreter';
+
+  async query(query: string): Promise<any> {
+    try {
+      const response = await axios.post(this.endpoint, query, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Overpass API error:', error);
+      throw error;
+    }
+  }
+
+  async getQuestions(categoryId: string): Promise<any[]> {
+    // Implementar lógica para obtener preguntas según la categoría
+    return [];
+  }
+}
+```
+
+Ahora, el frontend:
+
+1. **Configuración de Redux (client/src/store/index.ts)**:
+
+```typescript
+import { configureStore } from '@reduxjs/toolkit';
+import gameReducer from './gameSlice';
+import authReducer from './authSlice';
+
+export const store = configureStore({
+  reducer: {
+    game: gameReducer,
+    auth: authReducer
+  }
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+```
+
+2. **Slice del Juego (client/src/store/gameSlice.ts)**:
+
+```typescript
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+interface GameState {
+  currentGame: any | null;
+  questions: any[];
+  currentQuestion: number;
+  score: number;
+  time: number;
+  isPlaying: boolean;
+}
+
+const initialState: GameState = {
+  currentGame: null,
+  questions: [],
+  currentQuestion: 0,
+  score: 0,
+  time: 0,
+  isPlaying: false
+};
+
+const gameSlice = createSlice({
+  name: 'game',
+  initialState,
+  reducers: {
+    startGame: (state, action: PayloadAction<any>) => {
+      state.currentGame = action.payload;
+      state.questions = action.payload.questions;
+      state.currentQuestion = 0;
+      state.score = 0;
+      state.time = 0;
+      state.isPlaying = true;
+    },
+    submitAnswer: (state, action: PayloadAction<any>) => {
+      state.score += action.payload.score;
+      state.currentQuestion += 1;
+    },
+    endGame: (state) => {
+      state.isPlaying = false;
+    }
+  }
+});
+
+export const { startGame, submitAnswer, endGame } = gameSlice.actions;
+export default gameSlice.reducer;
+```
+
+3. **Componente Principal del Juego (client/src/components/Game.tsx)**:
+
+```typescript
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { startGame, submitAnswer, endGame } from '../store/gameSlice';
+import { RootState } from '../store';
+
+const Game: React.FC = () => {
+  const dispatch = useDispatch();
+  const { currentGame, questions, currentQuestion, score, isPlaying } = useSelector(
+    (state: RootState) => state.game
+  );
+  const [selectedPosition, setSelectedPosition] = useState<[number, number] | null>(null);
+
+  useEffect(() => {
+    // Inicializar juego
+    dispatch(startGame({ categoryId: 'default' }));
+  }, [dispatch]);
+
+  const handleMapClick = (e: any) => {
+    setSelectedPosition([e.latlng.lat, e.latlng.lng]);
+  };
+
+  const handleSubmitAnswer = () => {
+    if (selectedPosition) {
+      dispatch(submitAnswer({
+        questionId: questions[currentQuestion].id,
+        answer: selectedPosition,
+        time: Date.now() - currentGame.startTime
+      }));
+    }
+  };
+
+  if (!isPlaying) {
+    return <div>Game Over! Final Score: {score}</div>;
+  }
+
+  return (
+    <div className="game-container">
+      <div className="game-header">
+        <h2>Question {currentQuestion + 1} of {questions.length}</h2>
+        <p>Score: {score}</p>
+      </div>
+      
+      <MapContainer
+        center={[0, 0]}
+        zoom={2}
+        style={{ height: '500px', width: '100%' }}
+        onClick={handleMapClick}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        {selectedPosition && (
+          <Marker position={selectedPosition}>
+            <Popup>Your selection</Popup>
+          </Marker>
+        )}
+      </MapContainer>
+
+      <button
+        onClick={handleSubmitAnswer}
+        disabled={!selectedPosition}
+        className="submit-button"
+      >
+        Submit Answer
+      </button>
+    </div>
+  );
+};
+
+export default Game;
+```
+
+4. **Estilos (client/src/styles/Game.css)**:
+
+```css
+.game-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.submit-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+```
+
+5. **Configuración de i18n (client/src/i18n/index.ts)**:
+
+```typescript
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: {
+        translation: {
+          startGame: 'Start Game',
+          submitAnswer: 'Submit Answer',
+          gameOver: 'Game Over!',
+          finalScore: 'Final Score: {{score}}',
+          question: 'Question {{current}} of {{total}}'
+        }
+      },
+      es: {
+        translation: {
+          startGame: 'Iniciar Juego',
+          submitAnswer: 'Enviar Respuesta',
+          gameOver: '¡Juego Terminado!',
+          finalScore: 'Puntuación Final: {{score}}',
+          question: 'Pregunta {{current}} de {{total}}'
+        }
+      }
+    },
+    lng: 'en',
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false
+    }
+  });
+
+export default i18n;
+```
+
+Este es un esqueleto básico del juego. Para completarlo, necesitaríamos:
+
+1. Implementar más categorías y preguntas
+2. Mejorar la lógica de puntuación
+3. Añadir más tipos de preguntas
+4. Implementar el sistema de autenticación
+5. Añadir más características como:
+   - Pistas
+   - Modo práctica
+   - Estadísticas
+   - Compartir resultados
+
+¿Te gustaría que profundicemos en alguno de estos aspectos o que implementemos alguna característica específica?
