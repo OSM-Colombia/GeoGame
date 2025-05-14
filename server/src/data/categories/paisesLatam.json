@@ -1,0 +1,143 @@
+{
+  "categoryId": "paisesLatam",
+  "name": "Ubicar países de latam",
+  "description": "Ubica los países de Latinoamérica en el mapa",
+  "image": "https://upload.wikimedia.org/wikipedia/commons/6/63/Latin_America_%28orthographic_projection%29.svg",
+  "difficulty": "easy",
+  "timeLimit": 300,
+  "minScore": 0,
+  "osmArea": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -85,
+          -60
+        ],
+        [
+          -85,
+          15
+        ],
+        [
+          -30,
+          15
+        ],
+        [
+          -30,
+          -60
+        ],
+        [
+          -85,
+          -60
+        ]
+      ]
+    ]
+  },
+  "tags": [
+    "latam",
+    "paises",
+    "geografia"
+  ],
+  "isActive": true,
+  "questions": [
+    {
+      "questionId": "11",
+      "type": "position",
+      "title": "Colombia",
+      "description": "¿Dónde está ubicado Colombia?",
+      "answer": {},
+      "osmQuery": "[out:json];relation[\"admin_level\"=\"2\"][boundary=administrative][name=\"Colombia\"];out meta;",
+      "source": "https://es.wikipedia.org/wiki/Colombia",
+      "difficulty": "easy",
+      "duration": 30,
+      "hints": [
+        {
+          "_id": "h1",
+          "text": "Está en el norte de Sudamérica",
+          "penalty": 10
+        },
+        {
+          "_id": "h2",
+          "text": "Tiene costa en el Pacífico y el Caribe",
+          "penalty": 20
+        }
+      ],
+      "osmTags": [
+        {
+          "key": "boundary",
+          "value": "administrative"
+        },
+        {
+          "key": "admin_level",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "questionId": "12",
+      "type": "position",
+      "title": "Venezuela",
+      "description": "¿Dónde está ubicada Venezuela?",
+      "answer": {},
+      "osmQuery": "[out:json];relation[\"admin_level\"=\"2\"][boundary=administrative][name=\"Venezuela\"];out meta;",
+      "source": "https://es.wikipedia.org/wiki/Venezuela",
+      "difficulty": "easy",
+      "duration": 30,
+      "hints": [
+        {
+          "_id": "h3",
+          "text": "Está en el norte de Sudamérica",
+          "penalty": 10
+        },
+        {
+          "_id": "h4",
+          "text": "Tiene costa en el Caribe",
+          "penalty": 20
+        }
+      ],
+      "osmTags": [
+        {
+          "key": "boundary",
+          "value": "administrative"
+        },
+        {
+          "key": "admin_level",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "questionId": "13",
+      "type": "position",
+      "title": "Ecuador",
+      "description": "¿Dónde está ubicado Ecuador?",
+      "answer": {},
+      "osmQuery": "[out:json];relation[\"admin_level\"=\"2\"][boundary=administrative][name=\"Ecuador\"];out meta;",
+      "source": "https://es.wikipedia.org/wiki/Ecuador",
+      "difficulty": "easy",
+      "duration": 30,
+      "hints": [
+        {
+          "_id": "h5",
+          "text": "Está en la línea ecuatorial",
+          "penalty": 10
+        },
+        {
+          "_id": "h6",
+          "text": "Tiene costa en el Pacífico",
+          "penalty": 20
+        }
+      ],
+      "osmTags": [
+        {
+          "key": "boundary",
+          "value": "administrative"
+        },
+        {
+          "key": "admin_level",
+          "value": "2"
+        }
+      ]
+    }
+  ]
+}

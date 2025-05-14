@@ -1,0 +1,35 @@
+{
+  "startGame": "Start Game",
+  "submitAnswer": "Submit Answer",
+  "useHint": "Use Hint",
+  "enterAnswer": "Enter your answer...",
+  "yourSelection": "Your selection",
+  "question": "Question {{current}} of {{total}}",
+  "score": "Score",
+  "time": "Time",
+  "hintPenalty": "Penalty: -{{penalty}}%",
+  "gameOver": "Game Over!",
+  "finalScore": "Final Score: {{score}}",
+  "newHighScore": "New High Score!",
+  "playAgain": "Play Again",
+  "selectCategory": "Select Category",
+  "loading": "Loading...",
+  "error": {
+    "gameStart": "Error starting game",
+    "submitAnswer": "Error submitting answer",
+    "network": "Network error",
+    "unknown": "An unknown error occurred"
+  },
+  "categories": {
+    "capitals": "World Capitals",
+    "landmarks": "Famous Landmarks",
+    "rivers": "Major Rivers",
+    "mountains": "Mountain Ranges",
+    "countries": "Countries"
+  },
+  "difficulty": {
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard"
+  }
+} 

@@ -1,46 +1,98 @@
-# Getting Started with Create React App
+# GeoGame Client
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend del juego GeoGame desarrollado con React y TypeScript.
 
-## Available Scripts
+## Requisitos
 
-In the project directory, you can run:
+- Node.js (versión 18 o superior)
+- npm (incluido con Node.js)
+
+## Instalación
+
+```bash
+# Estando en el directorio client/
+# Instalar dependencias
+npm install
+```
+Nota: Si encuentras conflictos de dependencias (especialmente con TypeScript) durante la instalación, puedes intentar usar la opción `--legacy-peer-deps`:
+`npm install --legacy-peer-deps`
+
+## Scripts Disponibles
+
+En el directorio del proyecto, puedes ejecutar:
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Ejecuta la aplicación en modo desarrollo.\
+Abre [http://localhost:3000](http://localhost:3000) para verla en el navegador.
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Ejecuta los tests en modo interactivo.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Construye la aplicación para producción en la carpeta `build`.\
+Optimiza la build para mejor rendimiento.
 
 ### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+**Nota: esta es una operación unidireccional. Una vez que ejecutes `eject`, no podrás volver atrás.**
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Si no estás satisfecho con la herramienta de build y las configuraciones, puedes "eject" en cualquier momento.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Estructura del Proyecto
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+src/
+  ├── components/     # Componentes React
+  ├── services/       # Servicios (ej. osmAuth.ts para la autenticación con OSM)
+  ├── store/          # Estado global (Redux Toolkit)
+  ├── styles/         # Archivos CSS y de estilo
+  ├── types/          # Definiciones de TypeScript
+  ├── App.tsx         # Componente principal de la aplicación
+  └── index.tsx       # Punto de entrada de React
+```
 
-## Learn More
+## Tecnologías Principales
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- React 19
+- TypeScript
+- Redux Toolkit para manejo de estado
+- Leaflet para mapas interactivos
+- Tailwind CSS para estilos
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Desarrollo
+
+El proyecto usa Create React App con TypeScript. Para más información, consulta la [documentación de Create React App](https://facebook.github.io/create-react-app/docs/getting-started).
+
+## Variables de Entorno
+
+El cliente puede configurarse con las siguientes variables de entorno (creando un archivo `.env` en el directorio `client/`):
+
+- `REACT_APP_API_URL`: URL base del backend. Si no se especifica, por defecto se intentará conectar a `http://localhost:5000/api` (o el valor configurado en el código fuente como fallback).
+
+Adicionalmente, para la funcionalidad de guardar el mejor puntaje, las credenciales de OAuth 2.0 de OpenStreetMap deben configurarse directamente en el archivo `src/services/osmAuth.ts`, como se detalla en el README principal del proyecto.
+
+## Despliegue
+
+Para desplegar la aplicación:
+
+1. Ejecuta `npm run build`
+2. Los archivos estáticos se generarán en la carpeta `build/`
+3. Sirve estos archivos con tu servidor web preferido
+
+## Troubleshooting
+
+### Problemas Comunes
+
+1. **Error de íconos de Leaflet**
+   - Los íconos de Leaflet están preconfigurados en `src/components/Game.tsx`. Si surgen problemas, verifica que las rutas a las imágenes en `L.Icon.Default.mergeOptions` sean correctas y que los paquetes de Leaflet estén instalados.
+
+2. **Errores de TypeScript**
+   - Ejecuta `npm run build` para ver errores de tipo
+   - Verifica las definiciones de tipos en `src/types/`
+
+3. **Problemas de CORS**
+   - Verifica que el backend esté configurado correctamente
+   - Asegúrate de que las URLs de la API sean correctas

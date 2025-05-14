@@ -1,0 +1,35 @@
+{
+  "startGame": "Iniciar Juego",
+  "submitAnswer": "Enviar Respuesta",
+  "useHint": "Usar Pista",
+  "enterAnswer": "Ingresa tu respuesta...",
+  "yourSelection": "Tu selección",
+  "question": "Pregunta {{current}} de {{total}}",
+  "score": "Puntuación",
+  "time": "Tiempo",
+  "hintPenalty": "Penalización: -{{penalty}}%",
+  "gameOver": "¡Juego Terminado!",
+  "finalScore": "Puntuación Final: {{score}}",
+  "newHighScore": "¡Nuevo Récord!",
+  "playAgain": "Jugar de Nuevo",
+  "selectCategory": "Seleccionar Categoría",
+  "loading": "Cargando...",
+  "error": {
+    "gameStart": "Error al iniciar el juego",
+    "submitAnswer": "Error al enviar la respuesta",
+    "network": "Error de red",
+    "unknown": "Ocurrió un error desconocido"
+  },
+  "categories": {
+    "capitals": "Capitales del Mundo",
+    "landmarks": "Monumentos Famosos",
+    "rivers": "Ríos Principales",
+    "mountains": "Cadenas Montañosas",
+    "countries": "Países"
+  },
+  "difficulty": {
+    "easy": "Fácil",
+    "medium": "Medio",
+    "hard": "Difícil"
+  }
+} 
