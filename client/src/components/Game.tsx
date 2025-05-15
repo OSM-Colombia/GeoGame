@@ -242,7 +242,7 @@ const Game: React.FC<GameProps> = (props) => {
                     type="text" 
                     value={currentAnswerText} 
                     onChange={(e) => handleTextAnswerChange(e.target.value)} 
-                    placeholder={t('enterAnswer')} 
+                    placeholder={t('enterAnswer') ?? ''} 
                     className="text-input"
                 />
             )}
